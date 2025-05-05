@@ -3,9 +3,18 @@
 import { useState } from "react"
 import { Search } from "lucide-react"
 
+interface SearchResult {
+  id: string;
+  sessionType: string;
+  mainIssue: string;
+  patientAge: number;
+  patientText: string;
+  counselorText: string;
+}
+
 export default function SearchPage() {
   const [searchQuery, setSearchQuery] = useState("")
-  const [results, setResults] = useState([])
+  const [results, setResults] = useState<SearchResult[]>([])
   const [isLoading, setIsLoading] = useState(false)
 
   const handleSearch = async (e: React.FormEvent) => {
@@ -50,7 +59,7 @@ export default function SearchPage() {
       </form>
 
       <div className="space-y-6">
-        {results.map((result: any) => (
+        {results.map((result: SearchResult) => (
           <div key={result.id} className="rounded-lg border p-6">
             <div className="flex justify-between items-start mb-4">
               <div>

@@ -3,6 +3,11 @@
 import { useState } from "react"
 import { Loader2 } from "lucide-react"
 
+interface GuidanceError {
+  message: string;
+  details?: string;
+}
+
 export default function GuidancePage() {
   const [situation, setSituation] = useState("")
   const [guidance, setGuidance] = useState("")
@@ -30,11 +35,12 @@ export default function GuidancePage() {
       }
       
       setGuidance(data.guidance)
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Failed to get guidance:", error)
+      const guidanceError = error as GuidanceError
       setError({
-        message: error.message || "An unexpected error occurred",
-        details: error.details
+        message: guidanceError.message || "An unexpected error occurred",
+        details: guidanceError.details
       })
     } finally {
       setIsLoading(false)

@@ -50,26 +50,30 @@ export async function POST(request: Request) {
 
       const guidance = completion.choices[0]?.message?.content || "No guidance available"
       return NextResponse.json({ guidance })
-    } catch (apiError: any) {
+    } catch (error: unknown) {
       // Handle specific OpenAI API errors
-      if (apiError.status === 429) {
+      if (error instanceof OpenAI.APIError) {
+        if (error.status === 429) {
+          return NextResponse.json(
+            { 
+              error: "We're currently experiencing high demand. Please try again in a few minutes.",
+              details: "The AI service is temporarily unavailable due to high usage."
+            },
+            { status: 429 }
+          )
+        }
+        
+        // Handle other API errors
         return NextResponse.json(
           { 
-            error: "We're currently experiencing high demand. Please try again in a few minutes.",
-            details: "The AI service is temporarily unavailable due to high usage."
+            error: "Unable to generate guidance at this time.",
+            details: "Please try again later or contact support if the issue persists."
           },
-          { status: 429 }
+          { status: 500 }
         )
       }
       
-      // Handle other API errors
-      return NextResponse.json(
-        { 
-          error: "Unable to generate guidance at this time.",
-          details: "Please try again later or contact support if the issue persists."
-        },
-        { status: 500 }
-      )
+      throw error; // Re-throw if it's not an OpenAI error
     }
   } catch (error) {
     console.error("Guidance generation error:", error)
